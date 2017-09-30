@@ -1,5 +1,7 @@
 {
   "secret": "ngEurope rocks!",
   "audience": "nodejs-jwt-auth",
-  "issuer": "https://gonto.com"
+  "issuer": "https://gonto.com",
+  "dbUser": "ryan",
+  "dbPass": "ryanpass"
 }

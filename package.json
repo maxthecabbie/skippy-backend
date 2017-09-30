@@ -2,9 +2,8 @@
   "name": "skippy-api",
   "version": "1.0.0",
   "description": "Backend API for Skippy",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Ryan Ho",
   "license": "MIT",
@@ -17,7 +16,9 @@
     "express": "^4.15.4",
     "express-jwt": "^0.3.1",
     "jsonwebtoken": "^5.0.1",
+    "knex": "^0.13.0",
     "lodash": "^2.4.1",
-    "morgan": "^1.2.3"
+    "morgan": "^1.2.3",
+    "pg": "^7.3.0"
   }
 }
