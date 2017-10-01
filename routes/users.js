@@ -2,7 +2,7 @@ var express    = require('express'),
     bcrypt     = require('bcrypt'),
     db         = require('../db'),
     authHelper = require('../helpers/auth-helper'),
-    validator  = require('../helpers/signup-validation');
+    validator  = require('../helpers/signup-helper');
 
 const SALTROUNDS = 10;
 
@@ -15,13 +15,17 @@ app.post('/users', function(req, res) {
     var validSignup = validator.signupValidator(username, password, passConfirm);
 
     if (!validSignup) {
-        return res.status(400).send('Invalid signup');
+        return res.status(400).send({
+            errorMsg: 'Invalid signup'
+        });
     }
 
     db('users').where({username: username}).select('username')
     .then(function(rows) {
         if (rows.length > 0) {
-            return res.status(400).send('A user with that username already exists');
+            return res.status(400).send({
+                errorMsg: "Username already exists"
+            });
         }
         bcrypt.hash(password, SALTROUNDS, function(err, hash) {
             db.insert({

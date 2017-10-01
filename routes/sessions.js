@@ -12,13 +12,17 @@ app.post('/sessions/create', function(req, res) {
     var password = req.body.password;
 
     if (!username || !password) {
-        return res.status(400).send('You must send the username and the password');
+        return res.status(400).send({
+            errorMsg: 'You must enter a username and password'
+        });
     }
 
     db('users').where({username: username})
     .then(function(rows) {
         if (rows.length <= 0) {
-            return res.status(401).send('The username you have entered does not exist');
+            return res.status(401).send({
+                errorMsg: 'The username you have entered does not exist'
+            });
         }
         var user = rows[0];
         var hash = user.hash;
