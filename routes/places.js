@@ -19,16 +19,30 @@ app.get('/places/:placeId', function(req, res) {
     }
     placeId = parseInt(req.params.placeId);
 
-    db('places').where({id: placeId})
-    .then(function(rows) {
+    var placeRows = db('places').where({id: placeId});
+
+    var placeQueues = placeRows.then(function(rows) {
         if (rows.length <= 0) {
-            return res.status(401).send({
+            res.status(401).send({
                 errorMsg: 'The place you have entered does not exist'
             });
+            return Promise.reject();
         }
-        var placeName = rows[0].name;
-        return res.status(201).send({
-            placeName: placeName
-        });
+        else {
+            var placeId = rows[0].id;
+            return (db('queues').join('places', 'queues.place_id', 'places.id')
+                    .where('places.id', placeId)
+                    .select('queues.name')
+            );            
+        }
+    });
+
+    Promise.all([placeRows, placeQueues]).then(function([placeRows, queueRows]) {
+        res.status(200).send({
+            placeRows: placeRows,
+            queueRows: queueRows
+        })
     })
+    .catch(function() {
+    });
 });
