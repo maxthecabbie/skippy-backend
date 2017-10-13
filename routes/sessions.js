@@ -28,9 +28,14 @@ app.post('/sessions/create', function(req, res) {
         var hash = user.hash;
         bcrypt.compare(password, hash).then(function(passMatch) {
             if (passMatch) {
+                var userData = {
+                    id: user.id,
+                    username: user.username
+                }
                 return res.status(201).send({
                     id_token: authHelper.createIdToken(user),
-                    access_token: authHelper.createAccessToken()
+                    access_token: authHelper.createAccessToken(),
+                    user: userData
                 })
             }
             return res.status(401).send('The username and password do not match');

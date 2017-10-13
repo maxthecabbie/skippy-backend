@@ -34,6 +34,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use(require('./routes/sessions'));
 app.use(require('./routes/users'));
 app.use(require('./routes/places'));
+app.use(require('./routes/queues'));
 
 http.createServer(app).listen(port, function (err) {
     console.log('listening in http://localhost:' + port);

@@ -2,7 +2,7 @@ var express    = require('express'),
     bcrypt     = require('bcrypt'),
     db         = require('../db'),
     authHelper = require('../helpers/auth-helper'),
-    validator  = require('../helpers/signup-helper');
+    signupHelper  = require('../helpers/signup-helper');
 
 const SALTROUNDS = 10;
 
@@ -12,7 +12,7 @@ app.post('/users', function(req, res) {
     var username = req.body.username.toLowerCase();
     var password = req.body.password;
     var passConfirm = req.body.passConfirm;
-    var validSignup = validator.signupValidator(username, password, passConfirm);
+    var validSignup = signupHelper.signupValidator(username, password, passConfirm);
 
     if (!validSignup) {
         return res.status(400).send({
@@ -33,10 +33,17 @@ app.post('/users', function(req, res) {
                 hash: hash
             })
             .into('users')
-            .then(function() {
+            .returning(['id', 'username'])
+            .then(function(rows) {
+                var user = rows[0];
+                var userData = {
+                    id: user.id,
+                    username: user.username
+                }
                 res.status(201).send({
                     id_token: authHelper.createIdToken(req.body),
-                    access_token: authHelper.createAccessToken()
+                    access_token: authHelper.createAccessToken(),
+                    user: userData
                 });
             })
         });

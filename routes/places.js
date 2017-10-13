@@ -1,17 +1,36 @@
 var express    = require('express'),
     db         = require('../db'),
-    validator  = require('../helpers/place-helper');
+    placeHelper  = require('../helpers/place-helper');
 
 var app = module.exports = express.Router();
 
-function validatePlaceId(placeId) {
-    var numberRegex = /^[0-9]+$/;
-    return numberRegex.test(placeId);
-}
+app.post('/places', function(req, res) {
+    var placeName = req.body.placeName;
+    var validPlaceName = placeHelper.validatePlaceName(placeName);
+
+    if (!validPlaceName) {
+        return res.status(400).send({
+            errorMsg: 'Invalid place name'
+        });
+    }
+    
+    db.insert({
+        name: placeName
+    })
+    .into('places')
+    .returning(['id', 'name'])
+    .then(function(rows) {
+        var newPlaceInsert = rows[0];
+        res.status(201).send({
+            id: newPlaceInsert.id,
+            placeName: newPlaceInsert.name
+        });
+    })
+});
 
 app.get('/places/:placeId', function(req, res) {
     var placeId = req.params.placeId;
-    var validPlaceId = validator.validatePlaceId(placeId);
+    var validPlaceId = placeHelper.validatePlaceId(placeId);
     if (!validPlaceId) {
         return res.status(400).send({
             errorMsg: 'Invalid place'
@@ -32,7 +51,7 @@ app.get('/places/:placeId', function(req, res) {
             var placeId = rows[0].id;
             return (db('queues').join('places', 'queues.place_id', 'places.id')
                     .where('places.id', placeId)
-                    .select('queues.name')
+                    .select('queues.id', 'queues.name')
             );            
         }
     });
