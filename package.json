@@ -4,14 +4,16 @@
   "description": "Backend API for Skippy",
   "main": "server.js",
   "scripts": {
+    "start": "nodemon --inspect server"
   },
   "author": "Ryan Ho",
   "license": "MIT",
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "body-parser": "^1.6.5",
     "compression": "^1.0.11",
     "cors": "^2.4.1",
-    "dotenv": "^0.4.0",
+    "dotenv": "^5.0.1",
     "errorhandler": "^1.1.1",
     "express": "^4.15.4",
     "express-jwt": "^0.3.1",
@@ -20,5 +22,8 @@
     "lodash": "^2.4.1",
     "morgan": "^1.2.3",
     "pg": "^7.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.3"
   }
 }
