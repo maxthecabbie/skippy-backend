@@ -21,7 +21,7 @@ app.post('/sessions/create', function(req, res) {
     .then(function(rows) {
       if (rows.length <= 0) {
         return res.status(401).send({
-          errorMsg: 'The username you have entered does not exist'
+          errorMsg: 'Invalid username or password'
         });
       }
       var user = rows[0];
@@ -39,7 +39,7 @@ app.post('/sessions/create', function(req, res) {
           })
         }
         return res.status(401).send({
-          errorMsg: 'The username and password do not match'
+          errorMsg: 'Invalid username or password'
         });
       });
     })

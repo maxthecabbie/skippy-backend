@@ -11,7 +11,7 @@ app.post('/places', function(req, res) {
 
   if (!validPlaceName) {
     return res.status(400).send({
-      errorMsg: 'Invalid place name'
+      errorMsg: 'Invalid place name.'
     });
   }
 
@@ -21,17 +21,15 @@ app.post('/places', function(req, res) {
     .into('places')
     .returning(['id', 'name'])
     .then(function(rows) {
-      var newPlaceInsert = rows[0];
-
       return db.insert({
-          place_id: newPlaceInsert.id,
+          place_id: rows[0].id,
           user_id: creatorId
         })
         .into('place_admins')
         .returning(['place_id', 'user_id']);
     })
     .then(function(rows) {
-      res.status(201).send({
+      return res.status(201).send({
         placeId: rows[0].place_id
       });
     });
@@ -42,7 +40,7 @@ app.get('/places/:placeId', function(req, res) {
   var validPlaceId = placeHelper.validatePlaceId(placeId);
   if (!validPlaceId) {
     return res.status(400).send({
-      errorMsg: 'Invalid place'
+      errorMsg: 'Invalid place.'
     });
   }
   placeId = parseInt(req.params.placeId);
@@ -54,7 +52,7 @@ app.get('/places/:placeId', function(req, res) {
   var placeQueues = placeRows.then(function(rows) {
     if (rows.length <= 0) {
       res.status(401).send({
-        errorMsg: 'The place you have entered does not exist'
+        errorMsg: 'The place you have entered does not exist.'
       });
       return Promise.reject();
     } else {
@@ -67,11 +65,15 @@ app.get('/places/:placeId', function(req, res) {
   });
 
   Promise.all([placeRows, placeAdmins, placeQueues]).then(function([placeRows, adminRows, queueRows]) {
-      res.status(200).send({
+      return res.status(200).send({
         placeRows: placeRows,
         adminRows: adminRows,
         queueRows: queueRows
       })
     })
-    .catch(function() {});
+    .catch(function(error) {
+      return res.status(500).send({
+        errorMsg: 'Server error.'
+      });
+    });
 });

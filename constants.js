@@ -1,5 +1,6 @@
 module.exports = {
   createQueue: "createQueue",
   queueUser: "queueUser",
-  dequeueUser: "dequeueUser"
+  dequeueUser: "dequeueUser",
+  getQueueUsers: "getQueueUsers"
 };

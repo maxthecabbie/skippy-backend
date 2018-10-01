@@ -1,15 +1,38 @@
 var db = require('../db'),
   queueHelper = require('../helpers/queue-helper');
 
+function getQueueUsers(req, res) {
+  var queueId = req.body.queueId;
+
+  if (!Number.isInteger(queueId)) {
+    return res.status(400).send({
+      errorMsg: 'Invalid queue id.'
+    });
+  }
+
+  db('queue_users').select('position', 'user_id').where({ queue_id: queueId })
+    .then(function(rows) {
+      return res.status(200).send({
+        queueUsers: rows
+      });
+    })
+    .catch(function(error) {
+      return res.status(500).send({
+        errorMsg: 'Error fetching users for queue.'
+      });
+    });
+}
+
 function createQueue(req, res) {
   var placeId = req.body.placeId;
   var queueName = req.body.queueName;
+  queueName = typeof(queueName) === "number" ? queueName.toString() : queueName;
 
   var validQueueName = queueHelper.validateQueueName(queueName);
 
   if (!validQueueName) {
     return res.status(400).send({
-      errorMsg: 'Invalid queue name'
+      errorMsg: 'Invalid queue name.'
     });
   }
 
@@ -17,9 +40,9 @@ function createQueue(req, res) {
 
   var queueRows = placeRows.then(function(rows) {
     if (rows.length <= 0) {
-      res.status(401).send({
+      res.status(400).send({
         errorMsg: 'The place you are trying to ' +
-          'create a queue for does not exist'
+          'create a queue for does not exist.'
       });
       return Promise.reject();
     } else {
@@ -42,7 +65,11 @@ function createQueue(req, res) {
         queueName: newQueueInsert.name
       })
     })
-    .catch(function() {});
+    .catch(function(error) {
+      return res.status(400).send({
+        errorMsg: 'Error creating queue'
+      })
+    });
 }
 
 function queueUser(req, res) {
@@ -60,34 +87,35 @@ function queueUser(req, res) {
         row: row
       })
     })
-    .catch(() => {
-      res.status(400).send({
-        errorMsg: 'Error adding user to queue'
+    .catch((error) => {
+      return res.status(400).send({
+        errorMsg: 'Error adding user to queue.'
       })
     });
 }
 
 function dequeueUser(req, res) {
   var queueId = req.body.queueId;
-  var userId = req.body.userId;
 
+  var nextUserInQueue = db('queue_users').select('position').where({ queue_id: queueId }).orderBy('position', 'asc').limit(1);
   db('queue_users')
-    .where({ queue_id: queueId, user_id: userId })
     .del()
+    .whereIn('position', nextUserInQueue)
     .returning(['queue_id', 'user_id'])
     .then((row) => {
       res.status(200).send({
         row: row
       })
     })
-    .catch(() => {
-      res.status(400).send({
-        errorMsg: 'Error removing user from queue'
+    .catch((error) => {
+      return res.status(400).send({
+        errorMsg: 'Error removing user from queue.'
       })
     });
 }
 
 module.exports = {
+  'getQueueUsers': getQueueUsers,
   'createQueue': createQueue,
   'queueUser': queueUser,
   'dequeueUser': dequeueUser

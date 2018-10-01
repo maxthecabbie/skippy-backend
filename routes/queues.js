@@ -8,6 +8,9 @@ app.post('/queues', function(req, res) {
   var requestAction = req.body.requestAction;
 
   switch (requestAction) {
+    case constants.getQueueUsers:
+      queuesActions.getQueueUsers(req, res);
+      break;
     case constants.createQueue:
       queuesActions.createQueue(req, res);
       break;
@@ -18,7 +21,7 @@ app.post('/queues', function(req, res) {
       queuesActions.dequeueUser(req, res);
       break;
     default:
-      res.status(400).send({
+      return res.status(400).send({
         errorMsg: 'Unknown requestAction.'
       });
   }

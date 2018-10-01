@@ -24,7 +24,7 @@ app.post('/users', function(req, res) {
     .then(function(rows) {
       if (rows.length > 0) {
         return res.status(400).send({
-          errorMsg: "Username already exists"
+          errorMsg: 'Username already exists.'
         });
       }
       bcrypt.hash(password, SALTROUNDS, function(err, hash) {
@@ -40,12 +40,12 @@ app.post('/users', function(req, res) {
               id: user.id,
               username: user.username
             }
-            res.status(201).send({
+            return res.status(201).send({
               id_token: authHelper.createIdToken(req.body),
               access_token: authHelper.createAccessToken(),
               user: userData
             });
-          })
+          });
       });
     })
 });
@@ -55,7 +55,7 @@ app.get('/users/:userId/admining', function(req, res) {
 
   db('place_admins').select('place_id').where({ user_id: userId })
     .then((rows) => {
-      res.status(201).send({
+      return res.status(201).send({
         places: rows
       })
     });

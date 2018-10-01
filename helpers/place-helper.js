@@ -4,10 +4,9 @@ function validatePlaceId(placeId) {
 }
 
 function validatePlaceName(placeName) {
-  var validCharsRegex = /^[\w\.]+$/;
-  var length = placeName.length;
+  var validCharsRegex = /^[a-z0-9]+$/i;
   var validChars = validCharsRegex.test(placeName);
-  return (length >= 3) && (length <= 20) && validChars;
+  return 3 <= placeName.length <= 20 && validChars;
 }
 
 module.exports = {
